@@ -86,10 +86,10 @@ CREATE TABLE mysql_servers (
 The fields have the following semantics:
 * `hostgroup_id`: the hostgroup in which this mysqld instance is included. Notice that the same instance can be part as more than one hostgroup
 * `hostname`, `port`: the TCP endpoint at which the mysqld instance can be contacted
-* `status`: 
+* `status`:
   * *ONLINE* - backend server is fully operational
   * *SHUNNED* - backend sever is temporarily taken out of use because of either too many connection errors in a time that was too short, or replication lag exceeded the allowed threshold
-  * *OFFLINE_SOFT* - when a server is put into OFFLINE_SOFT mode, new incoming connections aren't accepted anymore, while the existing connections are kept until they became inactive. In other words, connections are kept in use until the current transaction is completed. This allows to gracefully detach a backend 
+  * *OFFLINE_SOFT* - when a server is put into OFFLINE_SOFT mode, new incoming connections aren't accepted anymore, while the existing connections are kept until they became inactive. In other words, connections are kept in use until the current transaction is completed. This allows to gracefully detach a backend
   * *OFFLINE_HARD* - when a server is put into OFFLINE_HARD mode, the existing connections are dropped, while new incoming connections aren't accepted either. This is equivalent to deleting the server from a hostgroup, or temporarily taking it out of the hostgroup for maintenance work
 * `weight` - the bigger the weight of a server relative to other weights, the higher the probability of the server to be chosen from a hostgroup
 * `compression` - if the value is greater than 0, new connections to that server will use compression
@@ -154,8 +154,8 @@ CREATE TABLE mysql_replication_hostgroups (
     UNIQUE (reader_hostgroup))
 ```
 
-Each row in `mysql_replication_hostgroups` represent a pair of *writer_hostgroup* and *reader_hostgroup* .  
-ProxySQL will monitor the value of `read_only` for all the servers in specified hostgroups, and based on the value of `read_only` will assign the server to the writer or reader hostgroups.  
+Each row in `mysql_replication_hostgroups` represent a pair of *writer_hostgroup* and *reader_hostgroup* .
+ProxySQL will monitor the value of `read_only` for all the servers in specified hostgroups, and based on the value of `read_only` will assign the server to the writer or reader hostgroups.
 The field `comment` can be used to store any arbitrary data.
 
 
@@ -208,7 +208,7 @@ Please refer to the [scheduler](scheduler.md) documentation.
 
 ### Runtime tables
 
-Because the content of some of the tables in `main` schema may be different from what is currently loaded in *runtime* , the Admin interface exports some virtual tables that allows the access to internal representation of the runtime configuration. These tables can be joined with the *memory* configuration for various purpose, for example to find mismatches.  
+Because the content of some of the tables in `main` schema may be different from what is currently loaded in *runtime* , the Admin interface exports some virtual tables that allows the access to internal representation of the runtime configuration. These tables can be joined with the *memory* configuration for various purpose, for example to find mismatches.
 The tables currently available are:
 * runtime_global_variables
 * runtime_mysql_query_rules
@@ -463,24 +463,65 @@ CREATE TABLE stats_mysql_global (
 ```
 
 Each row represents a global statistic at the proxy level related to MySQL. Currently, the available variables are:
-* Client_Connections_aborted - number of frontend connections aborted due to invalid credential or max_connections reached
-* Client_Connections_connected - number of frontend connections currently connected
-* Client_Connections_created - number of frontend connections created so far
-* Questions - total number of queries sent from frontends
-* Slow_queries - number of queries that ran for longer than the threshold in milliseconds defined in global variable `mysql-long_query_time`
+* `Active_Transactions` - current number of active transactions
+* `Backend_query_time_nsec`
+* `Client_Connections_aborted` - total number of frontend connections aborted due to invalid credential or max_connections reached
+* `Client_Connections_connected` - current number of frontend connections
+* `Client_Connections_created` - total number of frontend connections created so far
+* `Client_Connections_non_idle` - current number of client connections that are not idle
+* `Com_autocommit`
+* `Com_autocommit_filtered`
+* `Com_commit`
+* `Com_commit_filtered`
+* `Com_rollback`
+* `Com_rollback_filtered`
+* `Com_stmt_close`
+* `Com_stmt_execute`
+* `Com_stmt_prepare`
+* `ConnPool_get_conn_failure`
+* `ConnPool_get_conn_immediate`
+* `ConnPool_get_conn_success`
+* `ConnPool_memory_bytes`
+* `MySQL_Monitor_Workers`
+* `MySQL_Thread_Workers`
+* `ProxySQL_Uptime` - uptime in seconds
+* `Queries_backends_bytes_recv`
+* `Queries_backends_bytes_sent`
+* `Query_Cache_Entries`
+* `Query_Cache_Memory_bytes`
+* `Query_Cache_Purged`
+* `Query_Cache_bytes_IN`
+* `Query_Cache_bytes_OUT`
+* `Query_Cache_count_GET`
+* `Query_Cache_count_GET_OK`
+* `Query_Cache_count_SET`
+* `Query_Processor_time_nsec`
+* `Questions` - total number of queries sent from frontends
+* `SQLite3_memory_bytes`
+* `Server_Connections_aborted`
+* `Server_Connections_connected`
+* `Server_Connections_created`
+* `Servers_table_version`
+* `Slow_queries` - total number of queries that ran for longer than the threshold in milliseconds defined in global variable `mysql-long_query_time`
+* `Stmt_Active_Total`
+* `Stmt_Active_Unique`
+* `Stmt_Max_Stmt_id`
+* `mysql_backend_buffers_bytes`
+* `mysql_frontend_buffers_bytes`
+* `mysql_session_internal_bytes`
+
 
 The same output is available using the **SHOW MYSQL STATUS** command.
 
 Example:
 ```sql
-Admin> select * from stats.stats_mysql_global;
-+------------------------------+----------------+
-| Variable_Name                | Variable_Value |
-+------------------------------+----------------+
-| Client_Connections_aborted   | 0              |
-| Client_Connections_connected | 4              |
-| Client_Connections_created   | 4              |
-| Questions                    | 36337716       |
-| Slow_queries                 | 0              |
-+------------------------------+----------------+
+select * from stats.stats_mysql_global;
+```
+```
++------------------------------+----------+
+| Variable_name                | Value    |
++------------------------------+----------+
+| Active_Transactions          | 42       |
+| …                            |          |
++------------------------------+----------+
 ```
