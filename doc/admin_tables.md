@@ -515,13 +515,14 @@ The same output is available using the **SHOW MYSQL STATUS** command.
 
 Example:
 ```sql
-select * from stats.stats_mysql_global;
+SELECT * FROM stats.stats_mysql_global;
 ```
 ```
-+------------------------------+----------+
-| Variable_name                | Value    |
-+------------------------------+----------+
-| Active_Transactions          | 42       |
-| …                            |          |
-+------------------------------+----------+
++------------------------------+----------------+
+| Variable_Name                | Variable_Value |
++------------------------------+----------------+
+| ProxySQL_Uptime              | 4738           |
+| Active_Transactions          | 0              |
+| …                            |                |
++------------------------------+----------------+
 ```
